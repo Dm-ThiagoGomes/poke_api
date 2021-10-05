@@ -82,7 +82,7 @@ class Pokemon {
     if (json['next_evolution'] != null) {
       nextEvolution = <NextEvolution>[];
       json['next_evolution'].forEach((v) {
-        nextEvolution.add(new NextEvolution.fromJson(v));
+        nextEvolution.add(NextEvolution.fromJson(v));
       });
     }
   }
