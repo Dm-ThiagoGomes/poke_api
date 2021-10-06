@@ -1,10 +1,14 @@
 // ignore_for_file: file_names, empty_constructor_bodies
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 class PokeHub {
   late List<Pokemon> pokemon;
 
   PokeHub(this.pokemon);
+
+  late PokeHub pokeHub;
 
   PokeHub.fromJson(Map<String, dynamic> json) {
     if (json['pokemon'] != null) {
