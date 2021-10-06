@@ -18,10 +18,8 @@ class PokeHub {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    if (pokemon != null) {
-      data['pokemon'] = pokemon.map((v) => v.toJson()).toList();
-    }
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['pokemon'] = pokemon.map((v) => v.toJson()).toList();
     return data;
   }
 }
