@@ -54,10 +54,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void loadMore() {
     setState(() {
-      if (hidedPokes <= pokeHub.pokemon.length - 5) {
+      if (hidedPokes < pokeHub.pokemon.length) {
         hidedPokes += 12;
-      } else {
-        hidedPokes += 0;
+        if (hidedPokes >= pokeHub.pokemon.length) {
+          hidedPokes = pokeHub.pokemon.length;
+        }
       }
     });
   }
@@ -66,52 +67,71 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     var pokedex = pokeHub.pokemon.asMap();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: GridView.builder(
-          itemCount:
-              pokeHub.pokemon.length - (pokeHub.pokemon.length - hidedPokes),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 300,
-            childAspectRatio: 1,
-          ),
-          itemBuilder: (BuildContext context, index) {
-            return Card(
-                child: Column(children: [
-              SizedBox(
-                  height: 200,
-                  width: 200,
-                  child: Image.network(
-                    pokedex[index]!.img,
-                    scale: 1,
-                  )),
-              TextButton(
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => PokeProfile(
-                              pokeHub: this.pokeHub,
-                            ))),
-                child: Text(pokedex[index]!.name,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    )),
+    return FutureBuilder(
+        future: Dio().get(url),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(widget.title),
               ),
-            ]));
-          }),
-      bottomSheet: Container(
-          height: 100,
-          width: 100,
-          child: TextButton(
-              onPressed: () => loadMore(),
-              child: Text(
-                "Ver Mais +",
-                style: TextStyle(fontSize: 15),
-              ))),
-    );
+              body: GridView.builder(
+                  itemCount: pokeHub.pokemon.length -
+                      (pokeHub.pokemon.length - hidedPokes),
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 300,
+                    childAspectRatio: 1,
+                  ),
+                  itemBuilder: (BuildContext context, index) {
+                    return Card(
+                        child: Column(children: [
+                      SizedBox(
+                          height: 200,
+                          width: 200,
+                          child: Image.network(
+                            pokedex[index]!.img,
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                            scale: 1,
+                          )),
+                      TextButton(
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => PokeProfile(
+                                      pokeHub: pokeHub,
+                                      id: index,
+                                    ))),
+                        child: Text(pokedex[index]!.name,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            )),
+                      ),
+                    ]));
+                  }),
+              bottomSheet: Container(
+                  height: 100,
+                  width: 100,
+                  child: TextButton(
+                      onPressed: () => loadMore(),
+                      child: const Text(
+                        "Ver Mais +",
+                        style: TextStyle(fontSize: 15),
+                      ))),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 4,
+              ),
+            );
+          }
+        });
   }
 }

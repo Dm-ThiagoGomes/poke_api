@@ -7,7 +7,9 @@ import 'package:poke_api/core/Requests/pokeHub.dart';
 import 'package:poke_api/core/Screens/MainPage.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    home: MyHomePage(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
