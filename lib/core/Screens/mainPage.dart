@@ -2,11 +2,14 @@
 
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:poke_api/core/Requests/pokeHub.dart';
+import 'package:poke_api/core/Screens/pokeGridView.dart';
 import 'package:poke_api/core/Screens/pokeProfile.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -19,33 +22,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  PokeHub pokeHub = PokeHub.fromJson({});
-
-  var pokes = <String>[];
-
-  int perPage = 15;
-  int present = 0;
-
   var url =
       "https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json";
 
-  bool t = true;
+  int hidedPokes = 12;
+
+  PokeHub _pokeHub = PokeHub.fromJson({});
 
   @override
   void initState() {
     super.initState();
-    if (mounted) {
-      fetchData();
-    }
+    _fetchData();
   }
 
-  int hidedPokes = 12;
-
-  void fetchData() async {
+  void _fetchData() async {
     try {
-      var response = await Dio().get(url);
-      var decodedJson = jsonDecode(response.data);
-      pokeHub = PokeHub.fromJson(decodedJson);
+      var _response = await Dio().get(url);
+      var decodedJson = jsonDecode(_response.data);
+      _pokeHub = PokeHub.fromJson(decodedJson);
     } catch (e) {
       print(e.toString());
     }
@@ -54,10 +48,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void loadMore() {
     setState(() {
-      if (hidedPokes < pokeHub.pokemon.length) {
+      if (hidedPokes < _pokeHub.pokemon.length) {
         hidedPokes += 12;
-        if (hidedPokes >= pokeHub.pokemon.length) {
-          hidedPokes = pokeHub.pokemon.length;
+        if (hidedPokes >= _pokeHub.pokemon.length) {
+          hidedPokes = _pokeHub.pokemon.length;
         }
       }
     });
@@ -65,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var pokedex = pokeHub.pokemon.asMap();
+    // var pokedex = _pokeHub.then();
 
     return FutureBuilder(
         future: Dio().get(url),
@@ -75,46 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
               appBar: AppBar(
                 title: Text(widget.title),
               ),
-              body: GridView.builder(
-                  itemCount: pokeHub.pokemon.length -
-                      (pokeHub.pokemon.length - hidedPokes),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 300,
-                    childAspectRatio: 1,
-                  ),
-                  itemBuilder: (BuildContext context, index) {
-                    return Card(
-                        child: Column(children: [
-                      SizedBox(
-                          height: 200,
-                          width: 200,
-                          child: Image.network(
-                            pokedex[index]!.img,
-                            loadingBuilder: (context, child, progress) {
-                              if (progress == null) return child;
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                            scale: 1,
-                          )),
-                      TextButton(
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => PokeProfile(
-                                      pokeHub: pokeHub,
-                                      id: index,
-                                    ))),
-                        child: Text(pokedex[index]!.name,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                            )),
-                      ),
-                    ]));
-                  }),
+              body: PokeGridView(
+                hidedPokes: hidedPokes,
+                pokeHub: _pokeHub,
+              ),
               bottomSheet: Container(
                   height: 100,
                   width: 100,
@@ -126,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ))),
             );
           } else {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(
                 strokeWidth: 4,
               ),
