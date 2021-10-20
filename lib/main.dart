@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:poke_api/core/Providers/pokeHub_provider.dart';
 import 'package:poke_api/core/Requests/pokeHub.dart';
 import 'package:poke_api/core/Screens/MainPage.dart';
 

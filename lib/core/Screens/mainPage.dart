@@ -7,6 +7,7 @@ import 'dart:html';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:poke_api/core/Providers/pokeHub_provider.dart';
 
 import 'package:poke_api/core/Requests/pokeHub.dart';
 import 'package:poke_api/core/Screens/pokeGridView.dart';
@@ -24,34 +25,21 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var url =
       "https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json";
-
   int hidedPokes = 12;
-
-  PokeHub _pokeHub = PokeHub.fromJson({});
+  // var pokemon = PokeHubProvider.instance.pokeHub;
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
-  }
-
-  void _fetchData() async {
-    try {
-      var _response = await Dio().get(url);
-      var decodedJson = jsonDecode(_response.data);
-      _pokeHub = PokeHub.fromJson(decodedJson);
-    } catch (e) {
-      print(e.toString());
-    }
-    setState(() {});
+    PokeHubProvider.instance.fetchData();
   }
 
   void loadMore() {
     setState(() {
-      if (hidedPokes < _pokeHub.pokemon.length) {
+      if (hidedPokes < PokeHubProvider.instance.pokeHub.pokemon.length) {
         hidedPokes += 12;
-        if (hidedPokes >= _pokeHub.pokemon.length) {
-          hidedPokes = _pokeHub.pokemon.length;
+        if (hidedPokes >= PokeHubProvider.instance.pokeHub.pokemon.length) {
+          hidedPokes = PokeHubProvider.instance.pokeHub.pokemon.length;
         }
       }
     });
@@ -59,8 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // var pokedex = _pokeHub.then();
-
     return FutureBuilder(
         future: Dio().get(url),
         builder: (context, snapshot) {
@@ -71,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               body: PokeGridView(
                 hidedPokes: hidedPokes,
-                pokeHub: _pokeHub,
+                pokeHub: PokeHubProvider.instance.pokeHub,
               ),
               bottomSheet: Container(
                   height: 100,
