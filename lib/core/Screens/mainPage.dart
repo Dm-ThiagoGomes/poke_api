@@ -53,6 +53,24 @@ class _MyHomePageState extends State<MyHomePage> {
           if (snapshot.hasData) {
             return Scaffold(
               appBar: AppBar(
+                leading: IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: Container(
+                              width: 200,
+                              height: 20,
+                              child: TextFormField(
+                                onSaved: (_) => {},
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
                 title: Text(widget.title),
               ),
               body: PokeGridView(
